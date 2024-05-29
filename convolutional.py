@@ -12,13 +12,21 @@ class Convolutional(Layer):
         self.kernels_shape = (depth, input_depth, kernel_size, kernel_size)
         self.kernels = np.random.randn(*self.kernels_shape)
         self.biases = np.random.randn(*self.output_shape)
-
+        self.boo=0
     def forward(self, input):
         self.input = input
         self.output = np.copy(self.biases)
         for i in range(self.depth):
             for j in range(self.input_depth):
                 self.output[i] += signal.correlate2d(self.input[j], self.kernels[i, j], "valid")
+        if self.boo==0:
+            self.boo=1
+            print(f"input shape: {self.input.shape}")
+            print(self.kernels)
+            print(f"kernels shape: {self.kernels.shape}")
+            
+            print(f"output shape: {self.output.shape}")
+        
         return self.output
 
     def backward(self, output_gradient, learning_rate):
@@ -32,4 +40,9 @@ class Convolutional(Layer):
 
         self.kernels -= learning_rate * kernels_gradient
         self.biases -= learning_rate * output_gradient
+        if self.boo==1:
+            self.boo=2
+            print(f"kernels_gradient shape: {kernels_gradient.shape}")
+            print(f"input_gradient shape: {input_gradient.shape}")
+            print(f"output_gradient shape: {output_gradient.shape}")
         return input_gradient
