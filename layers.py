@@ -142,7 +142,23 @@ class reLU(Layer):
     def backward(self, output_gradient, learning_rate):
         return np.multiply(output_gradient, self.input > 0)
     
-    
+class Padding(Layer):
+    def __init__(self, input_shape, num_pads):
+        self.num_pads = num_pads
+        self.input_shape = input_shape
+        self.num_channels = input_shape[0]
+        super().__init__()
+
+    def forward(self, x):
+        self.padded_x= np.zeros((x.shape[0],x.shape[1]+2*self.num_pads,x.shape[2]+2*self.num_pads))
+        for i in range(self.num_channels):
+            self.padded_x[i] = np.pad(x[i], (self.num_pads,self.num_pads), 'constant',constant_values=(0,0))
+            
+        return self.padded_x
+        
+    def backward(self, grad,lr):
+        return grad[: , self.num_pads:-self.num_pads, self.num_pads:-self.num_pads]
+ 
 def preprocess_data(x, y, limit, flag):
     x = x.reshape(len(x), 1, 28, 28)
     x = x.astype("float32") / 255
